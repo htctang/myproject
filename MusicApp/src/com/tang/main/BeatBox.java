@@ -22,389 +22,310 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-
 public class BeatBox {
 
-         JPanel  mainPanel;//
+	JPanel mainPanel;// 声明一个面板
 
-         ArrayList<JCheckBox>  checkboxList;//
+	ArrayList<JCheckBox> checkboxList;// 声明一组复选框
 
-         Sequencer  sequencer;
+	Sequencer sequencer;
 
-         Sequence  sequence;
+	Sequence sequence;
 
-         Track track;
+	Track track;
 
-         JFrame theFrame;//
+	JFrame theFrame;// 声明一个窗体
 
-         String[]  instrumentNames={"Bass Drum","Closed Hi-Hat",
+	String[] instrumentNames = { "Bass Drum", "Closed Hi-Hat",
 
-                          "Open Hi-Hat","Acoustic Snare",   "Crash Cymbal","Hand Clap",
+	"Open Hi-Hat", "Acoustic Snare", "Crash Cymbal", "Hand Clap",
 
-                          "High  Tom","Hi Bongo","Naracas","Whistle","Low Conga",
+	"High  Tom", "Hi Bongo", "Naracas", "Whistle", "Low Conga",
 
-                          "Cowbell","Vibraslap","Low-mid Tom","High  Agogo",
+	"Cowbell", "Vibraslap", "Low-mid Tom", "High  Agogo",
 
-                          "Open Hi Conga"};//
+	"Open Hi Conga" };// 声明并初始化一个字符串
 
-    int[]  instruments={35,42,46,38,49,39,50,60,70,72,64,56,58,47,67,63};
+	int[] instruments = { 35, 42, 46, 38, 49, 39, 50, 60, 70, 72, 64, 56, 58,
+			47, 67, 63 };
 
-   
+	public static void main(String[] args) {
 
-         public static void main(String[] args) {
+		new BeatBox().buildGUI();//创建一个BeatBox类的实例并调用buildGUI()方法
 
-            new BeatBox().buildGUI();//
+	}
 
-         }
+	public void buildGUI() {//创建一个函数 这个函数用于创建整个程序的界面
 
-   public void buildGUI(){//
+		theFrame = new JFrame("Cyber  BeatBox");//创建一个标题为Cyber  BeatBox的窗体
 
-            theFrame=new JFrame("Cyber  BeatBox");//
+		theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//设置窗体关闭的模式
 
-            theFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//
+		BorderLayout layout = new BorderLayout();//创建一个边界布局管理器
 
-            BorderLayout   layout=new BorderLayout();//
+		JPanel background = new JPanel(layout);//创建一个面板并声明面板的布局管理器
 
-            JPanel  background=new JPanel(layout);//
+		background.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-            background.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		checkboxList = new ArrayList<JCheckBox>();//创建一组复选框
 
-            checkboxList=new ArrayList<JCheckBox>();//
+		Box buttonBox = new Box(BoxLayout.Y_AXIS);
 
-            Box buttonBox=new Box(BoxLayout.Y_AXIS);
+		JButton start = new JButton("Start");//创建一个标题为Start的按钮
 
-           
+		start.addActionListener(new MyStartListener());//给这个按钮注册一个按钮监听器
 
-            JButton  start=new JButton("Start");//
+		buttonBox.add(start);//创建一个盒布局用于使各个按钮竖直对其
 
-            start.addActionListener(new MyStartListener());//
+		JButton stop = new JButton("Stop");
 
-            buttonBox.add(start);//
+		stop.addActionListener(new MyStopListener());
 
-           
+		buttonBox.add(stop);
 
-            JButton stop=new JButton("Stop");
+		JButton upTempo = new JButton("Tempo Up");
 
-            stop.addActionListener(new MyStopListener());
+		upTempo.addActionListener(new MyStopListener());
 
-            buttonBox.add(stop);
+		buttonBox.add(upTempo);
 
-           
+		JButton downTempo = new JButton("Tempo down");
 
-            JButton upTempo=new JButton("Tempo Up");
+		downTempo.addActionListener(new MyStopListener());
 
-            upTempo.addActionListener(new MyStopListener());
+		buttonBox.add(downTempo);
 
-            buttonBox.add(upTempo);
+		Box nameBox = new Box(BoxLayout.Y_AXIS);
 
-           
+		//向盒nameBox中添加标签，并对标签赋值
 
-            JButton downTempo=new JButton("Tempo down");
+		for (int i = 0; i < 16; i++) {
 
-            downTempo.addActionListener(new MyStopListener());
+			nameBox.add(new Label(instrumentNames[i]));
 
-            buttonBox.add(downTempo);
+		}
 
-           
+		//将盒buttonBox放置在面板东面
 
-            Box nameBox=new Box(BoxLayout.Y_AXIS);
+		background.add(BorderLayout.EAST, buttonBox);
 
-           
+		background.add(BorderLayout.WEST, nameBox);
 
-            //
+		theFrame.getContentPane().add(background);
 
-            for(int i=0;i<16;i++){
+		//创建一个网格布局管理器 大小为16x16
 
-                     nameBox.add(new Label(instrumentNames[i]));
+		GridLayout grid = new GridLayout(16, 16);
 
-            }
+		grid.setVgap(1);
 
-      //
+		grid.setVgap(2);
 
-            background.add(BorderLayout.EAST,buttonBox);
+		//创建一个布局管理器为网格布局的面板
 
-            background.add(BorderLayout.WEST,nameBox);
+		mainPanel = new JPanel(grid);
 
-            theFrame.getContentPane().add(background);
+		//将mianPanel面板设置在主面板的中间
 
-            //
+		background.add(BorderLayout.CENTER, mainPanel);
 
-            GridLayout grid=new GridLayout(16,16);
+		for (int i = 0; i < 256; i++) {
 
-            grid.setVgap(1);
+			JCheckBox c = new JCheckBox();
 
-            grid.setVgap(2);
+			c.setSelected(false);
 
-       //
+			checkboxList.add(c);
 
-            mainPanel =new JPanel(grid);
+			mainPanel.add(c);
 
-          //
+		}
 
-            background.add(BorderLayout.CENTER,mainPanel);
+		setUpMidi();
 
-            for(int i=0;i<256;i++){
+		theFrame.setBounds(50, 50, 300, 300);
 
-                     JCheckBox  c=new JCheckBox();
+		theFrame.pack();
 
-                     c.setSelected(false);
+		theFrame.setVisible(true);
 
-                     checkboxList.add(c);
+	}
 
-                     mainPanel.add(c);
+	// 一般的MIDI设置程序代码
 
-                    
+	void setUpMidi() {
 
-            }
+		try {
 
-              setUpMidi();
+			sequencer = MidiSystem.getSequencer();
 
-           
+			sequencer.open();
 
-            theFrame.setBounds(50,50,300,300);
+			sequence = new Sequence(Sequence.PPQ, 4);
 
-            theFrame.pack();
+			track = sequence.createTrack();
 
-            theFrame.setVisible(true);
+			sequencer.setTempoInBPM(120);
 
-           
+		} catch (Exception e) {
 
-   }
+			e.printStackTrace();
 
-//   一般的MIDI设置程序代码
+		}
 
-    void setUpMidi(){
+	}
 
-             try {
+	void buildTrackAndStart() {
 
-                          sequencer =MidiSystem.getSequencer();
+		int[] trackList = null;
 
-                          sequencer.open();
+		sequence.deleteTrack(track);
 
-                          sequence=new Sequence(Sequence.PPQ,4);
+		track = sequence.createTrack();
 
-                          track=sequence.createTrack();
+		System.out.println("build");
 
-                          sequencer.setTempoInBPM(120);
+		for (int i = 0; i < 16; i++) {
 
-                  } catch (Exception e) {
+			trackList = new int[16];
 
-                          e.printStackTrace();
+			int key = instruments[i];
 
-                  }
+			for (int j = 0; j < 16; j++) {
 
-     }
+				JCheckBox jc = checkboxList.get(j + (16 * i));
 
-   
+				if (jc.isSelected()) {
 
-    void buildTrackAndStart(){
+					trackList[j] = key;
 
-             int[]  trackList=null;
+				} else {
 
-             sequence.deleteTrack(track);
+					trackList[j] = 0;
 
-             track=sequence.createTrack();
+				}
 
-             System.out.println("build");
+			}// 关闭内部循环
 
-            
+			makeTracks(trackList);
 
-             for(int i=0;i<16;i++){
+			track.add(makeEvent(176, 1, 127, 0, 16));
 
-                     trackList=new int[16];
+		}// 关闭外部循环
 
-                     int key=instruments[i];
+		track.add(makeEvent(192, 9, 1, 0, 15));
 
-            
+		try {
 
-                     for(int j=0;j<16;j++){
+			sequencer.setSequence(sequence);
 
-                              JCheckBox jc=checkboxList.get(j+(16*i));
+			sequencer.setLoopCount(sequencer.LOOP_CONTINUOUSLY);
 
-                             
+			sequencer.start();
 
-                              if(jc.isSelected()){
+			sequencer.setTempoInBPM(120);
 
-                                       trackList[j]=key;
+		} catch (InvalidMidiDataException e) {
 
-                                       }else{
+			e.printStackTrace();
 
-                                       trackList[j]=0;
+		}
 
-                                      
+	}// 关闭buildTrackAndStart方法
 
-                              }
+	void makeTracks(int[] list) {
 
-                     }//关闭内部循环
+		for (int i = 0; i < 16; i++) {
 
-                     makeTracks(trackList);
+			int key = list[i];
 
-                     track.add(makeEvent(176,1,127,0,16));
+			if (key != 0) {
 
-             }//关闭外部循环
+				track.add(makeEvent(144, 9, key, 100, i));
 
-               track.add(makeEvent(192,9,1,0,15));
+				track.add(makeEvent(128, 9, key, 100, i + 1));
 
-                      try {
+			}
 
-                                   sequencer.setSequence(sequence);
+		}
 
-                                   sequencer.setLoopCount(sequencer.LOOP_CONTINUOUSLY);
+	}
 
-                                   sequencer.start();
+	static MidiEvent makeEvent(int comd, int chan, int one, int two, int tick) {
 
-                                   sequencer.setTempoInBPM(120);
+		MidiEvent event = null;
 
-                          } catch (InvalidMidiDataException e) {
+		try {
 
-                                                     e.printStackTrace();
+			ShortMessage a = new ShortMessage();
 
-                          }
+			a.setMessage(comd, chan, one, two);
 
-                    
+			event = new MidiEvent(a, tick);
 
-             }//关闭buildTrackAndStart方法
+		} catch (InvalidMidiDataException e) {
 
-  
+			e.printStackTrace();
 
-   
+		}
 
-    void makeTracks(int[]  list){
+		return event;
 
-             for(int i=0;i<16;i++){
+	}
 
-                    
+	/*
+	 * 
+	 * 在此添加注解
+	 * 创建一个监听类继承ActionListener监听借口
+	 * 这个类中调用bulidTrackAndStart()方法 实现关闭或者播放音乐
+	 */
 
-                     int key=list[i];
+	class MyStartListener implements ActionListener {
 
-                     if(key!=0){
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
 
-                              track.add(makeEvent(144,9,key,100,i));
+			buildTrackAndStart();
 
-                              track.add(makeEvent(128,9,key,100,i+1));
+		}
 
-                             
+	}
 
-                     }
+	class MyStopListener implements ActionListener {
 
-                    
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
 
-             }
+			sequencer.stop();
 
-            
+		}
 
-    }
+	}
 
-   
+	class MyUpTempoListener implements ActionListener {
 
-     static  MidiEvent makeEvent(int comd,int chan,int one,int two,int tick){
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
 
-                  MidiEvent  event=null;
+			float tempoFactor = sequencer.getTempoFactor();
 
-                 
+			sequencer.setTempoFactor((float) (tempoFactor * 1.03));
 
-                  try {
+		}
 
-                          ShortMessage  a=new ShortMessage();
+	}
 
-                          a.setMessage(comd,chan,one,two);
+	class MyDownTempoListener implements ActionListener {
 
-                          event=new MidiEvent(a,tick);
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
 
-                  } catch (InvalidMidiDataException e) {
+			float tempoFactor = sequencer.getTempoFactor();
 
-                          e.printStackTrace();
+			sequencer.setTempoFactor((float) (tempoFactor * 0.97));
 
-                  }
+		}
 
-                  return event;
-
-                 
-
-         }
-
-     /*
-
-      * 在此添加注解
-
-      */
-
-    
-
-   class MyStartListener  implements ActionListener{
-
- 
-
-         @Override
-
-         public void actionPerformed(ActionEvent arg0) {
-
-                  buildTrackAndStart();
-
-         }
-
-           
-
-   }
-
-   class MyStopListener implements  ActionListener{
-
- 
-
-         @Override
-
-         public void actionPerformed(ActionEvent arg0) {
-
-                  sequencer.stop();
-
-                 
-
-         }
-
-           
-
-   }
-
-  
-
-   class   MyUpTempoListener implements ActionListener{
-
- 
-
-         @Override
-
-         public void actionPerformed(ActionEvent arg0) {
-
-                  float tempoFactor=sequencer.getTempoFactor();
-
-                  sequencer.setTempoFactor((float) (tempoFactor*1.03));
-
-                 
-
-         }
-
-           
-
-   }
-
-   class   MyDownTempoListener implements ActionListener{
-
- 
-
-         @Override
-
-         public void actionPerformed(ActionEvent arg0) {
-
-                  float tempoFactor=sequencer.getTempoFactor();
-
-                  sequencer.setTempoFactor((float) (tempoFactor*0.97));
-
-                 
-
-         }
-
-           
-
-   }
+	}
 
 }
