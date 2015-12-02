@@ -105,7 +105,11 @@ public class BeatBox {
 
 		}
 
-		//将盒buttonBox放置在面板东面
+		/**
+		 * 将盒buttonBox放置在面板东面
+		 * 将盒nameBox放在面板西面
+		 * 给窗体添加面板background
+		 * */
 
 		background.add(BorderLayout.EAST, buttonBox);
 
@@ -113,7 +117,11 @@ public class BeatBox {
 
 		theFrame.getContentPane().add(background);
 
-		//创建一个网格布局管理器 大小为16x16
+		/**
+		 * 创建一个网格布局管理器grid 大小为16x16
+		 * 设置grib的横向间距为1
+		 * 再设置纵向间距为2
+		 * */
 
 		GridLayout grid = new GridLayout(16, 16);
 
@@ -125,7 +133,13 @@ public class BeatBox {
 
 		mainPanel = new JPanel(grid);
 
-		//将mianPanel面板设置在主面板的中间
+		/**
+		 * 将mianPanel面板设置在主面板的中间
+		 * 创建256个复选框
+		 * 设置初始为未选择
+		 * 将创建的复选框添加到复选框列表中
+		 * 将复选框添加到主面板中
+		 * */
 
 		background.add(BorderLayout.CENTER, mainPanel);
 
